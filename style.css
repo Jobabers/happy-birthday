@@ -147,6 +147,14 @@ body {
     .polaroid { animation: none; }
 }
 
+@media (hover: none) {
+    .loader button:hover,
+    .loader button:focus-visible {
+        transform: translate(-50%, -50%);
+        outline: none;
+    }
+}
+
 img {
     width: 100%;
 }
@@ -206,9 +214,55 @@ img {
 }
 
 .cake {
-    transform: translateY(-50%);
-    transform: translateX(-50%);
-    left: 50%;
-    position: absolute;
-    padding-top: 250px;
+    position: relative;
+    left: auto;
+    padding-top: 1.5rem;
+    margin: 0 auto;
+    max-width: 220px;
+}
+
+.main {
+    position: relative;
+    min-height: 100vh;
+}
+
+.main > .container {
+    position: relative;
+    z-index: 4;
+}
+
+@media (min-width: 601px) and (max-width: 1024px) {
+    .area {
+        font-size: clamp(48px, 8vw, 68px);
+        letter-spacing: -3px;
+    }
+
+    .type-wrap {
+        font-size: clamp(20px, 3.2vw, 26px);
+    }
+
+    .cake {
+        max-width: 200px;
+    }
+
+    .balloon-border {
+        max-height: 38vh;
+        object-fit: fill;
+    }
+}
+
+@media (max-width: 600px) {
+    .area {
+        font-size: clamp(42px, 12vw, 58px);
+        letter-spacing: -2px;
+    }
+
+    .type-wrap {
+        font-size: 19px;
+    }
+
+    .cake {
+        max-width: 170px;
+        padding-top: 1rem;
+    }
 }

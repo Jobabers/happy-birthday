@@ -35,15 +35,19 @@ document.addEventListener("DOMContentLoaded", function () {
     var movers = cards.map(function (card, index) {
         var rect = card.getBoundingClientRect();
         var angle = (index * 137.5) * Math.PI / 180;
-        var speed = 28 + (index % 4) * 7;
+        var speed = 18 + (index % 4) * 5;
+        var scale = window.innerWidth <= 1024 ? 0.72 : 1;
+        card.style.width = "clamp(105px, " + (window.innerWidth <= 1024 ? "13vw" : "15vw") + ", 190px)";
+        card.style.padding = window.innerWidth <= 1024 ? "7px 7px 28px" : "10px 10px 36px";
         return {
             element: card,
-            x: rect.left,
-            y: rect.top,
+            x: (index % 5) * (window.innerWidth / 5) + 8,
+            y: Math.floor(index / 5) * (window.innerHeight * 0.48) + 8,
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             angle: (index % 2 ? 1 : -1) * (5 + index % 6),
-            spin: (index % 2 ? 1 : -1) * (4 + index % 3)
+            spin: (index % 2 ? 1 : -1) * (2 + index % 3),
+            scale: scale
         };
     });
 
@@ -54,14 +58,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
         movers.forEach(function (mover) {
             var element = mover.element;
-            var maxX = Math.max(0, window.innerWidth - element.offsetWidth);
-            var maxY = Math.max(0, window.innerHeight - element.offsetHeight);
+            // Keep the full rotated card inside the viewport, including its corners.
+            var radians = Math.abs(mover.angle) * Math.PI / 180;
+            var halfW = (element.offsetWidth * Math.cos(radians) + element.offsetHeight * Math.sin(radians)) / 2;
+            var halfH = (element.offsetWidth * Math.sin(radians) + element.offsetHeight * Math.cos(radians)) / 2;
+            var minX = Math.max(0, halfW - element.offsetWidth / 2);
+            var minY = Math.max(0, halfH - element.offsetHeight / 2);
+            var maxX = Math.max(minX, window.innerWidth - element.offsetWidth - minX);
+            var maxY = Math.max(minY, window.innerHeight - element.offsetHeight - minY);
             mover.x += mover.vx * delta;
             mover.y += mover.vy * delta;
 
-            if (mover.x <= 0) { mover.x = 0; mover.vx = Math.abs(mover.vx); }
+            if (mover.x <= minX) { mover.x = minX; mover.vx = Math.abs(mover.vx); }
             else if (mover.x >= maxX) { mover.x = maxX; mover.vx = -Math.abs(mover.vx); }
-            if (mover.y <= 0) { mover.y = 0; mover.vy = Math.abs(mover.vy); }
+            if (mover.y <= minY) { mover.y = minY; mover.vy = Math.abs(mover.vy); }
             else if (mover.y >= maxY) { mover.y = maxY; mover.vy = -Math.abs(mover.vy); }
 
             mover.angle += mover.spin * delta;
@@ -69,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
             element.style.top = mover.y + "px";
             element.style.right = "auto";
             element.style.bottom = "auto";
-            element.style.transform = "rotate(" + mover.angle + "deg)";
+            element.style.transform = "rotate(" + mover.angle + "deg) scale(" + mover.scale + ")";
         });
 
         window.requestAnimationFrame(moveCards);
@@ -81,6 +91,14 @@ document.addEventListener("DOMContentLoaded", function () {
             mover.x = Math.min(mover.x, Math.max(0, window.innerWidth - mover.element.offsetWidth));
             mover.y = Math.min(mover.y, Math.max(0, window.innerHeight - mover.element.offsetHeight));
         });
+    });
+    window.addEventListener("orientationchange", function () {
+        window.setTimeout(function () {
+            movers.forEach(function (mover) {
+                mover.x = Math.min(mover.x, Math.max(0, window.innerWidth - mover.element.offsetWidth));
+                mover.y = Math.min(mover.y, Math.max(0, window.innerHeight - mover.element.offsetHeight));
+            });
+        }, 250);
     });
 });
 var retina = window.devicePixelRatio,
