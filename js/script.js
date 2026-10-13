@@ -28,61 +28,6 @@ var typed = new Typed("#typed", {
     backSpeed: 10,
     loop: true
 });
-
-// Let the background polaroids drift around the viewport and bounce off its edges.
-document.addEventListener("DOMContentLoaded", function () {
-    var cards = Array.prototype.slice.call(document.querySelectorAll(".polaroid"));
-    var movers = cards.map(function (card, index) {
-        var rect = card.getBoundingClientRect();
-        var angle = (index * 137.5) * Math.PI / 180;
-        var speed = 28 + (index % 4) * 7;
-        return {
-            element: card,
-            x: rect.left,
-            y: rect.top,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            angle: (index % 2 ? 1 : -1) * (5 + index % 6),
-            spin: (index % 2 ? 1 : -1) * (4 + index % 3)
-        };
-    });
-
-    var previousTime = 0;
-    function moveCards(time) {
-        var delta = previousTime ? Math.min((time - previousTime) / 1000, 0.04) : 0;
-        previousTime = time;
-
-        movers.forEach(function (mover) {
-            var element = mover.element;
-            var maxX = Math.max(0, window.innerWidth - element.offsetWidth);
-            var maxY = Math.max(0, window.innerHeight - element.offsetHeight);
-            mover.x += mover.vx * delta;
-            mover.y += mover.vy * delta;
-
-            if (mover.x <= 0) { mover.x = 0; mover.vx = Math.abs(mover.vx); }
-            else if (mover.x >= maxX) { mover.x = maxX; mover.vx = -Math.abs(mover.vx); }
-            if (mover.y <= 0) { mover.y = 0; mover.vy = Math.abs(mover.vy); }
-            else if (mover.y >= maxY) { mover.y = maxY; mover.vy = -Math.abs(mover.vy); }
-
-            mover.angle += mover.spin * delta;
-            element.style.left = mover.x + "px";
-            element.style.top = mover.y + "px";
-            element.style.right = "auto";
-            element.style.bottom = "auto";
-            element.style.transform = "rotate(" + mover.angle + "deg)";
-        });
-
-        window.requestAnimationFrame(moveCards);
-    }
-    window.requestAnimationFrame(moveCards);
-
-    window.addEventListener("resize", function () {
-        movers.forEach(function (mover) {
-            mover.x = Math.min(mover.x, Math.max(0, window.innerWidth - mover.element.offsetWidth));
-            mover.y = Math.min(mover.y, Math.max(0, window.innerHeight - mover.element.offsetHeight));
-        });
-    });
-});
 var retina = window.devicePixelRatio,
 
     // Math shorthands
